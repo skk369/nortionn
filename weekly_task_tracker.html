@@ -1,0 +1,158 @@
+<!-- Notion-Style Embedded Tracker: Dark Green/Nature Theme -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Weekly Task Tracker</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #1c2b1f;
+      color: #d8e2dc;
+      padding: 30px;
+    }
+    h1, h2 {
+      color: #cce3de;
+      text-align: center;
+    }
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 40px;
+    }
+    .tasks {
+      flex: 1;
+      min-width: 300px;
+    }
+    .circle-box {
+      flex: 1;
+      min-width: 250px;
+      text-align: center;
+    }
+    .task-group {
+      margin-bottom: 25px;
+    }
+    .task-group label {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+      margin: 8px 0;
+      cursor: pointer;
+      position: relative;
+    }
+    .task-group span:hover + .day-log {
+      display: block;
+    }
+    .day-log {
+      display: none;
+      font-size: 12px;
+      background-color: #2a3b2d;
+      padding: 6px 10px;
+      border-radius: 6px;
+      margin-top: 5px;
+      color: #d9edc2;
+    }
+    .day-log table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .day-log th, .day-log td {
+      border: 1px solid #4a5d4a;
+      padding: 4px 8px;
+      text-align: center;
+    }
+    svg {
+      transform: rotate(-90deg);
+    }
+    .circle-label {
+      margin-top: 10px;
+      font-size: 18px;
+      color: #b7efc5;
+    }
+  </style>
+</head>
+<body>
+  <h1>🌿 Weekly Productivity Tracker</h1>
+  <div class="container">
+    <div class="tasks">
+      <div class="task-group" id="taskList"></div>
+    </div>
+    <div class="circle-box">
+      <svg width="160" height="160">
+        <circle r="70" cx="80" cy="80" stroke="#2d6a4f" stroke-width="12" fill="none"></circle>
+        <circle id="progressCircle" r="70" cx="80" cy="80" stroke="#95d5b2" stroke-width="12" fill="none" stroke-dasharray="440" stroke-dashoffset="440" stroke-linecap="round"></circle>
+      </svg>
+      <div class="circle-label" id="progressLabel">0%</div>
+      <p style="color: #a3b18a; font-size: 14px;">Weekly Progress</p>
+    </div>
+  </div>
+
+  <script>
+    const taskNames = [
+      "📚 Homework",
+      "📘 Study Session 1",
+      "🍽️ Snacks & Chill",
+      "💤 Nap / Rest",
+      "📕 Study Session 2",
+      "🍴 Break",
+      "🚀 Aspiration Training",
+      "📒 Reflection / Journal",
+      "🏃‍♀️ Exercise",
+      "🎧 Wind Down / Music"
+    ];
+
+    const weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    let weeklyProgress = Array.from({ length: 10 }, () => Array(7).fill(false));
+
+    const taskList = document.getElementById("taskList");
+
+    taskNames.forEach((task, i) => {
+      const label = document.createElement("label");
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.onclick = () => toggleLog(checkbox, i);
+      const span = document.createElement("span");
+      span.textContent = task;
+
+      const log = document.createElement("div");
+      log.className = "day-log";
+      log.id = `log${i}`;
+      log.innerHTML = generateLogTable(i);
+
+      label.appendChild(checkbox);
+      label.appendChild(span);
+      label.appendChild(log);
+      taskList.appendChild(label);
+    });
+
+    function toggleLog(cb, index) {
+      const today = new Date().getDay();
+      const day = (today + 6) % 7;
+      weeklyProgress[index][day] = cb.checked;
+      document.getElementById(`log${index}`).innerHTML = generateLogTable(index);
+      updateProgress();
+    }
+
+    function generateLogTable(index) {
+      const header = weekdays.map(d => `<th>${d}</th>`).join("");
+      const values = weeklyProgress[index].map(d => `<td>${d ? "✔️" : "✘"}</td>`).join("");
+      return `<table><tr>${header}</tr><tr>${values}</tr></table>`;
+    }
+
+    function updateProgress() {
+      const allBoxes = document.querySelectorAll('input[type="checkbox"]');
+      let checked = 0;
+      allBoxes.forEach(cb => cb.checked && checked++);
+      const percent = Math.round((checked / 10) * 100);
+      const offset = 440 - (440 * percent) / 100;
+      const circle = document.getElementById("progressCircle");
+      const label = document.getElementById("progressLabel");
+      circle.style.strokeDashoffset = offset;
+      label.innerText = percent + "%";
+    }
+  </script>
+</body>
+</html>
